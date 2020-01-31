@@ -14,9 +14,7 @@ namespace Compress
     class Program
     {
         static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-
+        { 
             var watch = System.Diagnostics.Stopwatch.StartNew();
 
 
@@ -24,7 +22,7 @@ namespace Compress
                        .AddMemoryCache()
                        .BuildServiceProvider();
 
-            //Should be redis or some kind of persistant cache
+            //Should be redis or some kind of persistent cache
             var cache = provider.GetService<IMemoryCache>();
 
             var fs = new FileStream("Downloads.zip", FileMode.Open);
