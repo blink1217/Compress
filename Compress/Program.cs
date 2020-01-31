@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Compress
@@ -25,7 +23,7 @@ namespace Compress
             //Should be redis or some kind of persistent cache
             var cache = provider.GetService<IMemoryCache>();
 
-            var fs = new FileStream("Downloads.zip", FileMode.Open);
+            var fs = new FileStream("dotnet-sdk-3.1.100-win-x64.exe", FileMode.Open);
             var len = (int)fs.Length;
             var bits = new byte[len];
             fs.Read(bits, 0, len);
@@ -47,42 +45,31 @@ namespace Compress
 
             }
 
-            var listOne = par
-                .GroupBy(x => x.Value)
-                .Distinct().AsParallel().ToList();
-
             int indexP = 0;
 
-            //Could use some kind of custom hardware it's slow on my laptop
             Parallel.For(0, par.Count(), (i, loopState) =>
             {
-                foreach(var li in listOne)
+                var already = cache.Get(par[i]);
+                if(already !=  null)
                 {
-                    if (li.FirstOrDefault().Value == par[i])
+                    lock (par)
                     {
-                        var already = cache.Get(par[i]);
-                        if(already !=  null)
-                        {
-                            lock (par)
-                            {
-                                par[i] = already.ToString();
-                            }
-                        }
-                        else
-                        {
-                            var s = "#" + indexP++;
-
-                            cache.Set(par[i], s);
-                            cache.Set(s, par[i]);
-
-                            lock (par)
-                            {
-                                par[i] = s;
-                            }
-                        }
+                        par[i] = already.ToString();
                     }
                 }
+                else
+                {
+                    var s = "#" + indexP++;
 
+                    cache.Set(par[i], s);
+                    cache.Set(s, par[i]);
+
+                    lock (par)
+                    {
+                        par[i] = s;
+                    }
+                }
+                   
             });
 
             StringBuilder sb = new StringBuilder();
@@ -91,19 +78,19 @@ namespace Compress
                 sb.Append(d.Value);
             }
 
-            //file size went from 2551KB to 1000KB not sure if it was worth 5 minutes of my day ;)
+            //file size went from 122921KB to 60336KB in less than a minute ;)
             WriteConvertedFile(sb, "Output.fuk");
 
             // the code that you want to measure comes here
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
 
-            Console.WriteLine("Complete");
+            Console.WriteLine("Complete in elapsedMs");
         }
 
         public static void WriteConvertedFile(StringBuilder s, string File)
         {
-            using (System.IO.StreamWriter file = new System.IO.StreamWriter(File))
+            using (StreamWriter file = new StreamWriter(File))
             {
                 file.WriteLine(s.ToString());
             }
