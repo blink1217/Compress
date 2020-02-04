@@ -83,7 +83,7 @@ namespace Compress
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
 
-            Console.WriteLine("Complete in elapsedMs");
+            Console.WriteLine($"Complete in elapsedMs {elapsedMs}");
         }
 
         public static void WriteConvertedFile(StringBuilder s, string File)
