@@ -68,8 +68,7 @@ namespace Compress
                     {
                         par[i] = s;
                     }
-                }
-                   
+                }   
             });
 
             StringBuilder sb = new StringBuilder();
@@ -81,7 +80,6 @@ namespace Compress
             //file size went from 122921KB to 60336KB in less than a minute ;)
             WriteConvertedFile(sb, "Output.fuk");
 
-            // the code that you want to measure comes here
             watch.Stop();
             var elapsedMs = watch.ElapsedMilliseconds;
 
@@ -90,11 +88,8 @@ namespace Compress
 
         public static void WriteConvertedFile(StringBuilder s, string File)
         {
-            using (StreamWriter file = new StreamWriter(File))
-            {
-                file.WriteLine(s.ToString());
-            }
+            using StreamWriter file = new StreamWriter(File);
+            file.WriteLine(s.ToString());
         }
-
     }
 }
